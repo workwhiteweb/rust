@@ -149,14 +149,17 @@ pub fn expand_expr(e: P<ast::Expr>, fld: &mut MacroExpander) -> P<ast::Expr> {
             fld.cx.expr(span, il).with_attrs(fold_thin_attrs(attrs, fld))
         }
 
-        ast::ExprKind::Closure(capture_clause, fn_decl, block) => {
+        ast::ExprKind::Closure(capture_clause, fn_decl, block, fn_decl_span) => {
             let (rewritten_fn_decl, rewritten_block)
                 = expand_and_rename_fn_decl_and_block(fn_decl, block, fld);
             let new_node = ast::ExprKind::Closure(capture_clause,
-                                            rewritten_fn_decl,
-                                            rewritten_block);
-            P(ast::Expr{id:id, node: new_node, span: fld.new_span(span),
-                        attrs: fold_thin_attrs(attrs, fld)})
+                                                  rewritten_fn_decl,
+                                                  rewritten_block,
+                                                  fld.new_span(fn_decl_span));
+            P(ast::Expr{ id:id,
+                         node: new_node,
+                         span: fld.new_span(span),
+                         attrs: fold_thin_attrs(attrs, fld) })
         }
 
         _ => {
@@ -204,7 +207,7 @@ fn expand_mac_invoc<T, F, G>(mac: ast::Mac,
                 pth.span,
                 &format!("macro undefined: '{}!'",
                         &extname));
-            fld.cx.suggest_macro_name(&extname.as_str(), pth.span, &mut err);
+            fld.cx.suggest_macro_name(&extname.as_str(), &mut err);
             err.emit();
 
             // let compilation continue
@@ -339,8 +342,8 @@ fn contains_macro_use(fld: &mut MacroExpander, attrs: &[ast::Attribute]) -> bool
                                         "macro_escape is a deprecated synonym for macro_use");
             is_use = true;
             if let ast::AttrStyle::Inner = attr.node.style {
-                err.fileline_help(attr.span, "consider an outer attribute, \
-                                              #[macro_use] mod ...").emit();
+                err.help("consider an outer attribute, \
+                          #[macro_use] mod ...").emit();
             } else {
                 err.emit();
             }
