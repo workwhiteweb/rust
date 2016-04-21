@@ -32,9 +32,9 @@ use rustc::session::{self, config};
 use std::rc::Rc;
 use syntax::ast;
 use syntax::abi::Abi;
-use syntax::codemap::{MultiSpan, CodeMap, DUMMY_SP};
+use syntax::codemap::{CodeMap, DUMMY_SP};
 use syntax::errors;
-use syntax::errors::emitter::Emitter;
+use syntax::errors::emitter::{CoreEmitter, Emitter};
 use syntax::errors::{Level, RenderSpan};
 use syntax::parse::token;
 use syntax::feature_gate::UnstableFeatures;
@@ -76,12 +76,13 @@ fn remove_message(e: &mut ExpectErrorEmitter, msg: &str, lvl: Level) {
     }
 }
 
-impl Emitter for ExpectErrorEmitter {
-    fn emit(&mut self,
-            _sp: Option<&MultiSpan>,
-            msg: &str,
-            _: Option<&str>,
-            lvl: Level) {
+impl CoreEmitter for ExpectErrorEmitter {
+    fn emit_message(&mut self,
+                    _sp: &RenderSpan,
+                    msg: &str,
+                    _: Option<&str>,
+                    lvl: Level,
+                    _is_header: bool) {
         remove_message(self, msg, lvl);
     }
 }
