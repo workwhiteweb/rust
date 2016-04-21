@@ -19,6 +19,7 @@ fn a() {
         [box ref _a, _, _] => {
         //~^ borrow of `vec[..]` occurs here
             vec[0] = box 4; //~ ERROR cannot assign
+            //~^ assignment to `vec[..]` occurs here
         }
     }
 }
@@ -30,6 +31,7 @@ fn b() {
         [_b..] => {
         //~^ borrow of `vec[..]` occurs here
             vec[0] = box 4; //~ ERROR cannot assign
+            //~^ assignment to `vec[..]` occurs here
         }
     }
 }
