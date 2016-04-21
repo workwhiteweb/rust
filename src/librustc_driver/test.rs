@@ -71,6 +71,7 @@ fn remove_message(e: &mut ExpectErrorEmitter, msg: &str, lvl: Level) {
             e.messages.remove(i);
         }
         None => {
+            debug!("Unexpected error: {} Expected: {:?}", msg, e.messages);
             panic!("Unexpected error: {} Expected: {:?}", msg, e.messages);
         }
     }
@@ -442,7 +443,7 @@ fn contravariant_region_ptr_ok() {
 
 #[test]
 fn contravariant_region_ptr_err() {
-    test_env(EMPTY_SOURCE_STR, errors(&["lifetime mismatch"]), |env| {
+    test_env(EMPTY_SOURCE_STR, errors(&["mismatched types"]), |env| {
         env.create_simple_region_hierarchy();
         let t_rptr1 = env.t_rptr_scope(1);
         let t_rptr10 = env.t_rptr_scope(10);
