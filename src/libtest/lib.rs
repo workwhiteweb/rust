@@ -962,6 +962,8 @@ fn get_concurrency() -> usize {
               target_os = "bitrig",
               target_os = "netbsd"))]
     fn num_cpus() -> usize {
+        use std::ptr;
+
         let mut cpus: libc::c_uint = 0;
         let mut cpus_size = std::mem::size_of_val(&cpus);
 
@@ -975,7 +977,7 @@ fn get_concurrency() -> usize {
                              2,
                              &mut cpus as *mut _ as *mut _,
                              &mut cpus_size as *mut _ as *mut _,
-                             0 as *mut _,
+                             ptr::null_mut(),
                              0);
             }
             if cpus < 1 {
@@ -987,6 +989,8 @@ fn get_concurrency() -> usize {
 
     #[cfg(target_os = "openbsd")]
     fn num_cpus() -> usize {
+        use std::ptr;
+
         let mut cpus: libc::c_uint = 0;
         let mut cpus_size = std::mem::size_of_val(&cpus);
         let mut mib = [libc::CTL_HW, libc::HW_NCPU, 0, 0];
@@ -996,7 +1000,7 @@ fn get_concurrency() -> usize {
                          2,
                          &mut cpus as *mut _ as *mut _,
                          &mut cpus_size as *mut _ as *mut _,
-                         0 as *mut _,
+                         ptr::null_mut(),
                          0);
         }
         if cpus < 1 {
